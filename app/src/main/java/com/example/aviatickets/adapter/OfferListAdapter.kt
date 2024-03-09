@@ -2,6 +2,7 @@ package com.example.aviatickets.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.aviatickets.R
 import com.example.aviatickets.databinding.ItemOfferBinding
@@ -10,15 +11,25 @@ import com.example.aviatickets.model.entity.Offer
 class OfferListAdapter : RecyclerView.Adapter<OfferListAdapter.ViewHolder>() {
 
     private val items: ArrayList<Offer> = arrayListOf()
+    private val originalList: ArrayList<Offer> = arrayListOf() // Для хранения оригинального списка
+
 
     fun setItems(offerList: List<Offer>) {
         items.clear()
         items.addAll(offerList)
+        originalList.clear()
+        originalList.addAll(offerList)
         notifyDataSetChanged()
+    }
 
-        /**
-         * think about recycler view optimization using diff.util
-         */
+    fun sortByPrice() {
+        items.sortBy { it.price }
+        notifyDataSetChanged()
+    }
+
+    fun sortByDuration() {
+        items.sortBy { it.flight.duration }
+        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -71,5 +82,16 @@ class OfferListAdapter : RecyclerView.Adapter<OfferListAdapter.ViewHolder>() {
             second = minutes % 60
         )
 
+
+
+    }
+    private class OfferDiffCallback : DiffUtil.ItemCallback<Offer>() {
+        override fun areItemsTheSame(oldItem: Offer, newItem: Offer): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(oldItem: Offer, newItem: Offer): Boolean {
+            return oldItem == newItem
+        }
     }
 }
